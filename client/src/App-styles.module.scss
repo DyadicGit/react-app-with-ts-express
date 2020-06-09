@@ -1,0 +1,21 @@
+:global(#root) {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 0.15fr 0.6fr 0.25fr;
+  grid-template-rows: 10vh 1fr 10vh;
+
+  .right-side-bar { grid-column: 3; }
+  .menu { grid-column: 1; }
+
+  header {
+    grid-column: 1/-1;
+    justify-content: center;
+    align-items: center;
+  }
+  footer {
+    grid-column: 1/-1;
+    align-self: center;
+    text-align: center;
+  }
+}
+
