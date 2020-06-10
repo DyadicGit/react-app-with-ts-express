@@ -1,4 +1,5 @@
 import React from 'react'
+import bulma from '../components/bulma.module.scss'
 
 const toTableRow = ({ id, title, content, onDelete, onEdit }) => (
   <tr key={id}>
@@ -6,10 +7,10 @@ const toTableRow = ({ id, title, content, onDelete, onEdit }) => (
     <td>{title}</td>
     <td>{content}</td>
     <td>
-      <button onClick={() => onDelete(id)}>Delete</button>
+      <button className={bulma.button} onClick={() => onDelete(id)}>Delete</button>
     </td>
     <td>
-      <button onClick={() => onEdit(id)}>Edit</button>
+      <button className={bulma.button} onClick={() => onEdit(id)}>Edit</button>
     </td>
   </tr>
 )
@@ -17,12 +18,14 @@ const toTableRow = ({ id, title, content, onDelete, onEdit }) => (
 const AddPost = ({ posts, onDelete, onEdit }) => {
   return (
     <>
-      <table>
+      <table className={bulma.table}>
         <thead>
         <tr>
           <th>id</th>
           <th>title</th>
           <th>content</th>
+          <th/>
+          <th/>
         </tr>
         </thead>
         <tbody>

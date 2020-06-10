@@ -7,10 +7,10 @@ import Header from './components/Header'
 import Menu from './components/Menu'
 import Footer from './components/Footer'
 import RightSidebar from './components/RightSidebar'
-import { menu } from './components/bulma.module.scss'
-import styles from './App-styles.module.scss'
+import { apiAddPost, apiDeletePost, apiGetPost, apiGetPostList, apiUpdatePost } from "./pages/api";
 import cx from 'classnames'
-import { apiDeletePost, apiGetPost, apiGetPostList, apiUpdatePost } from "./pages/api";
+import bulma from './components/bulma.module.scss'
+import styles from './App-styles.module.scss'
 
 function init(posts) {
   return { posts: posts };
@@ -40,7 +40,8 @@ const usePost = () => {
   const loadPostList = (onFinally) => apiGetPostList().then((posts) => dispatch({ type: 'LOAD', payload: posts })).finally(onFinally)
   const selectToEdit = (id) => apiGetPost(id).then((post) => dispatch({ type: 'SELECT', payload: post }))
   const updatePost = (post) => apiUpdatePost(post).then(post => dispatch({ type: 'UPDATE', payload: post }))
-  return { state, dispatch: { deletePost, loadPostList, selectToEdit, updatePost } }
+  const createPost = (post) => apiAddPost(post).then(post => dispatch({ type: 'ADD', payload: post }))
+  return { state, dispatch: { deletePost, loadPostList, selectToEdit, updatePost, createPost } }
 }
 
 function App() {
@@ -53,7 +54,7 @@ function App() {
   return (
     <Router>
       <Header/>
-      <aside className={cx(menu, styles.menu)}>
+      <aside className={cx(bulma.menu, styles.menu)}>
         <Menu/>
       </aside>
       <main>
@@ -70,8 +71,8 @@ function App() {
                    />}
         />
       </main>
-      <aside className={styles.rightSideBar}>
-        <RightSidebar onSubmit={dispatch.updatePost} selectedToEdit={state.selected}/>
+      <aside className={cx(styles.rightSideBar, 'wtf')}>
+        <RightSidebar onSubmitEdit={dispatch.updatePost} onSubmitCreate={dispatch.createPost} selectedToEdit={state.selected}/>
       </aside>
       <Footer />
     </Router>
