@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useReducer } from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Posts from './pages/Posts'
@@ -10,21 +10,68 @@ import RightSidebar from './components/RightSidebar'
 import { menu } from './components/bulma.module.scss'
 import styles from './App-styles.module.scss'
 import cx from 'classnames'
+import { apiDeletePost, apiGetPost, apiGetPostList, apiUpdatePost } from "./pages/api";
+
+function init(posts) {
+  return { posts: posts };
+}
+
+function postReducer(state, action) {
+  switch (action.type) {
+    case 'LOAD':
+      return init(action.payload)
+    case 'ADD':
+      return { posts: state.posts.concat(action.payload) };
+    case 'UPDATE':
+      return { posts: state.posts.map(s => s.id === action.payload.id ? { ...s, ...action.payload } : s) };
+    case 'DELETE':
+      return { posts: state.posts.filter(s => s.id !== action.payload) };
+    case 'SELECT':
+      return { ...state, selected: action.payload }
+    default:
+      throw new Error();
+  }
+}
+
+const usePost = () => {
+  const [state, dispatch] = useReducer(postReducer, [], init);
+
+  const deletePost = (id) => apiDeletePost(id).then(() => dispatch({ type: 'DELETE', payload: id }))
+  const loadPostList = (onFinally) => apiGetPostList().then((posts) => dispatch({ type: 'LOAD', payload: posts })).finally(onFinally)
+  const selectToEdit = (id) => apiGetPost(id).then((post) => dispatch({ type: 'SELECT', payload: post }))
+  const updatePost = (post) => apiUpdatePost(post).then(post => dispatch({ type: 'UPDATE', payload: post }))
+  return { state, dispatch: { deletePost, loadPostList, selectToEdit, updatePost } }
+}
 
 function App() {
+  const { state, dispatch } = usePost()
+
+  useEffect(() => {
+    dispatch.loadPostList()
+  }, [])
+
   return (
     <Router>
-      <Header />
+      <Header/>
       <aside className={cx(menu, styles.menu)}>
-        <Menu />
+        <Menu/>
       </aside>
       <main>
-        <Route exact path="/" component={Home} />
-        <Route exact path="/posts" component={Posts} />
-        <Route exact path="/add-post" component={AddPost} />
+        <Route exact path="/" component={Home}/>
+        <Route exact path="/posts" component={(props) => Posts({...props, posts: state.posts})}/>
+        <Route exact path="/add-post"
+               component={
+                 (props) =>
+                   <AddPost
+                     {...props}
+                     posts={state.posts}
+                     onDelete={dispatch.deletePost}
+                     onEdit={dispatch.selectToEdit}
+                   />}
+        />
       </main>
       <aside className={styles.rightSideBar}>
-        <RightSidebar />
+        <RightSidebar onSubmit={dispatch.updatePost} selectedToEdit={state.selected}/>
       </aside>
       <Footer />
     </Router>

@@ -1,26 +1,26 @@
-let posts = new Map();
+let posts: Map<string, Post> = new Map();
 
 export interface Post {
-  id: string
+  id: number
   title: string
   content: string
 }
 export type PostList = Post[]
 
 const add = (data: Post) => {
-  if (posts.has(data.id)) {
+  if (posts.has(data.id.toString())) {
     throw Error('already exists')
   }
-  posts.set(data.id, data)
+  posts.set(data.id.toString(), data)
 }
-const remove = (id: string) => posts.delete(id)
-const set = (id: string, data: Post) => posts.set(id, data)
-const get = (id: string): Post => posts.get(id)
+const remove = (id) => posts.delete(id.toString())
+const set = (id, data: Post) => posts.set(id.toString(), data)
+const get = (id): Post => posts.get(id.toString())
 const all = (): PostList => Array.from(posts.values())
 
 const init = async () => {
   const initPosts = await import('./db.json')
-  posts = new Map(initPosts.posts.map(s => [s.id, s]))
+  posts = new Map<string, Post>(initPosts.posts.map(s => [s.id.toString(), s]))
 }
 init()
 

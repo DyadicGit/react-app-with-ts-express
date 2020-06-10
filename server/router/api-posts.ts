@@ -7,14 +7,14 @@ postsApi.get('/posts', (req, res) => {
 })
 
 postsApi.get('/posts/:id', (req, res) => {
-  res.json(storage.posts.get(req.params.id))
+  res.json(storage.posts.get(decodeURIComponent(req.params.id)))
 })
 
 postsApi.delete('/posts/:id', (req, res) => {
-  res.send(storage.posts.remove(req.params.id))
+  res.send(storage.posts.remove(decodeURIComponent(req.params.id)))
 })
 
-postsApi.post('/posts', json, (req, res) => {
+postsApi.post('/posts', json(), (req, res) => {
   const post: Post = req.body
   try {
     storage.posts.add(post)
@@ -24,11 +24,11 @@ postsApi.post('/posts', json, (req, res) => {
   }
 })
 
-postsApi.patch('/posts/:id', json, (req, res) => {
+postsApi.patch('/posts/:id', json(), (req, res) => {
   const { body } = req
   delete body.id
 
-  const existing = storage.posts.get(req.params.id)
+  const existing = storage.posts.get(decodeURIComponent(req.params.id))
   if (!existing) return res.send('NO ENTRY')
 
   const modified
